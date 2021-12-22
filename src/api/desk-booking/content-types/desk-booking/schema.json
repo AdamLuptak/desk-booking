@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "desk_bookings",
+  "info": {
+    "singularName": "desk-booking",
+    "pluralName": "desk-bookings",
+    "displayName": "DeskBooking",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "desk": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::desk.desk",
+      "required": true
+    },
+    "from": {
+      "type": "date",
+      "required": true
+    },
+    "to": {
+      "type": "date",
+      "required": true
+    },
+    "owned": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "desk_bookings"
+    }
+  }
+}

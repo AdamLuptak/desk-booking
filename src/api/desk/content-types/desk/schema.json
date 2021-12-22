@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "desks",
+  "info": {
+    "singularName": "desk",
+    "pluralName": "desks",
+    "displayName": "Desk"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "Fixed",
+        "Flexible",
+        "Bookable"
+      ],
+      "required": true
+    }
+  }
+}
