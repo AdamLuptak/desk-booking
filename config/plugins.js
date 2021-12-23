@@ -3,7 +3,7 @@ module.exports = ({ env }) => ({
     config: {
       provider: 'sendgrid',
       providerOptions: {
-        apiKey: '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',
+        apiKey: '-',
       },
       settings: {
         defaultFrom: 'adamluptakosice@gmail.com',
