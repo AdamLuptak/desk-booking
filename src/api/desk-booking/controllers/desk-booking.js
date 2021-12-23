@@ -7,7 +7,6 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 const _ = require('lodash');
 
-
 module.exports = createCoreController('api::desk-booking.desk-booking', ({ strapi }) => ({
 
   async create(ctx) {
@@ -18,43 +17,37 @@ module.exports = createCoreController('api::desk-booking.desk-booking', ({ strap
       })
     }
 
-    // const desk = await strapi.service('api::desk.desk').findOne(ctx.request.body.data.desk);
-    // if (_.isEmpty(desk)) {
-    //   return ctx.badRequest('Desk doesn\'t exist', {
-    //     desk: ctx.request.body.data.desk
-    //   })
-    // }
-    // Find if there is existing bookings
-    // const overlapBookings = await strapi.db.query('api::desk-booking.desk-booking').findMany({
-    //   where: {
-    //     desk: ctx.request.body.data.desk,
-    //     $or: [
-    //       {
-    //         from: { $between: [ctx.request.body.data.from, ctx.request.body.data.to] },
-    //       },
-    //       {
-    //         to: { $between: [ctx.request.body.data.from, ctx.request.body.data.to] }
-    //       }
-    //     ]
-    //   },
-    // });
-    //
-    // if (!_.isEmpty(overlapBookings)) {
-    //   return ctx.badRequest('Booking exist', {
-    //     from: ctx.request.body.data.from,
-    //     to: ctx.request.body.data.to,
-    //     overlapBookings: overlapBookings
-    //   })
-    // }
+    const desk = await strapi.service('api::desk.desk').findOne(ctx.request.body.data.desk);
+    if (_.isEmpty(desk)) {
+      return ctx.badRequest('Desk doesn\'t exist', {
+        desk: ctx.request.body.data.desk
+      })
+    }
+
+    const overlapBookings = await strapi.db.query('api::desk-booking.desk-booking').findMany({
+      where: {
+        desk: ctx.request.body.data.desk,
+        $or: [
+          {
+            from: { $between: [ctx.request.body.data.from, ctx.request.body.data.to] },
+          },
+          {
+            to: { $between: [ctx.request.body.data.from, ctx.request.body.data.to] }
+          }
+        ]
+      },
+    });
+
+    if (!_.isEmpty(overlapBookings)) {
+      return ctx.badRequest('Booking exist', {
+        from: ctx.request.body.data.from,
+        to: ctx.request.body.data.to,
+        overlapBookings: overlapBookings
+      })
+    }
 
     ctx.request.body.data.owned = ctx.state.user.id
-
-    try {
-      return await super.create(ctx);
-    } catch (e) {
-      console.log(e)
-      throw e
-    }
+    return super.create(ctx);
   },
 
   async update(ctx) {

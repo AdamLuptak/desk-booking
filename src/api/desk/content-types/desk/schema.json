@@ -4,7 +4,8 @@
   "info": {
     "singularName": "desk",
     "pluralName": "desks",
-    "displayName": "Desk"
+    "displayName": "Desk",
+    "description": ""
   },
   "options": {
     "draftAndPublish": false
@@ -19,6 +20,12 @@
         "Bookable"
       ],
       "required": true
+    },
+    "uuid": {
+      "type": "uid"
+    },
+    "description": {
+      "type": "string"
     }
   }
 }
