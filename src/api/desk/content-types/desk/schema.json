@@ -26,6 +26,12 @@
     },
     "description": {
       "type": "string"
+    },
+    "desk_bookings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::desk-booking.desk-booking",
+      "mappedBy": "desk"
     }
   }
 }

@@ -14,9 +14,9 @@
   "attributes": {
     "desk": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToOne",
       "target": "api::desk.desk",
-      "required": true
+      "inversedBy": "desk_bookings"
     },
     "from": {
       "type": "date",
@@ -26,7 +26,7 @@
       "type": "date",
       "required": true
     },
-    "owned": {
+    "owner": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",

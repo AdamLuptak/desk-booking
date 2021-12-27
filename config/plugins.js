@@ -1,15 +1,21 @@
 module.exports = ({ env }) => ({
   email: {
     config: {
-      provider: 'sendgrid',
+      provider: 'strapi-provider-email-smtp',
       providerOptions: {
-        apiKey: '-',
+        host: 'smtp.gmail.com', //SMTP Host
+        port: 465   , //SMTP Port
+        secure: true,
+        username: 'simpledeskbooking@gmail.com',
+        password: 'g8K<a^v<$4-;`nj"',
+        rejectUnauthorized: true,
+        requireTLS: true,
+        connectionTimeout: 1,
       },
-      settings: {
-        defaultFrom: 'adamluptakosice@gmail.com',
-        defaultReplyTo: 'adamluptakosice@gmail.com',
-        testAddress: 'adamluptakosice@gmail.com',
-      },
+    },
+    settings: {
+      from: 'simpledeskbooking@gmail.com',
+      replyTo: 'simpledeskbooking@gmail.com',
     },
   },
 });

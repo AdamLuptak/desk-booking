@@ -67,7 +67,7 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::desk-booking.desk-booking",
-      "mappedBy": "owned"
+      "mappedBy": "owner"
     }
   }
 }

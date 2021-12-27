@@ -9,6 +9,22 @@ const _ = require('lodash');
 
 module.exports = createCoreController('api::desk-booking.desk-booking', ({ strapi }) => ({
 
+  getOverlapBookings: async function (ctx) {
+    return await strapi.db.query('api::desk-booking.desk-booking').findMany({
+      where: {
+        desk: ctx.request.body.data.desk,
+        $or: [
+          {
+            from: { $between: [ctx.request.body.data.from, ctx.request.body.data.to] },
+          },
+          {
+            to: { $between: [ctx.request.body.data.from, ctx.request.body.data.to] }
+          }
+        ]
+      },
+    });
+  },
+
   async create(ctx) {
     if (ctx.request.body.data.from > ctx.request.body.data.to) {
       return ctx.badRequest('From can\'t be greater than to', {
@@ -24,19 +40,7 @@ module.exports = createCoreController('api::desk-booking.desk-booking', ({ strap
       })
     }
 
-    const overlapBookings = await strapi.db.query('api::desk-booking.desk-booking').findMany({
-      where: {
-        desk: ctx.request.body.data.desk,
-        $or: [
-          {
-            from: { $between: [ctx.request.body.data.from, ctx.request.body.data.to] },
-          },
-          {
-            to: { $between: [ctx.request.body.data.from, ctx.request.body.data.to] }
-          }
-        ]
-      },
-    });
+    const overlapBookings = await this.getOverlapBookings(ctx);
 
     if (!_.isEmpty(overlapBookings)) {
       return ctx.badRequest('Booking exist', {
@@ -46,29 +50,42 @@ module.exports = createCoreController('api::desk-booking.desk-booking', ({ strap
       })
     }
 
-    ctx.request.body.data.owned = ctx.state.user.id
+    ctx.request.body.data.owner = ctx.state.user.id
+
     return super.create(ctx);
   },
 
   async update(ctx) {
-    // some custom logic here
-    ctx.query = { ...ctx.query, local: 'en' }
-    ctx.request.body.data.owned = ctx.state.user.id
-    // Calling the default core action
-    try {
-      const r = await strapi.service('api::desk-booking.desk-booking').findOne(21);
-      console.log(r)
-    } catch (e) {
-      console.log(e)
+    const { id } = ctx.params;
+    const owner = ctx.state.user.id
+    const deskBooking = await strapi.entityService.findOne('api::desk-booking.desk-booking', id, {
+      populate: { owner: true },
+    });
+
+    if (_.isEmpty(deskBooking)) {
+      return ctx.badRequest('Booking don\'t exist')
     }
 
-    const { data, meta } = await super.update(ctx);
+    if (deskBooking.owner.id !== owner) {
+      return ctx.forbidden('You are not owner of the booking')
+    }
 
-    // some more custom logic
-    meta.date = Date.now()
+    const overlapBookings = await this.getOverlapBookings(ctx);
 
-    return { data, meta };
+    if (!_.isEmpty(overlapBookings)) {
+      return ctx.badRequest('Booking exist', {
+        from: ctx.request.body.data.from,
+        to: ctx.request.body.data.to,
+        overlapBookings: overlapBookings
+      })
+    }
 
+    return super.update(ctx);
+  },
+
+  async find(ctx) {
+    return super.find(ctx)
   }
+
 
 }));
