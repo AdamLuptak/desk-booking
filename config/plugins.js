@@ -1,21 +1,15 @@
 module.exports = ({ env }) => ({
   email: {
     config: {
-      provider: 'strapi-provider-email-smtp',
+      provider: 'strapi-provider-email-sendinblue',
       providerOptions: {
-        host: 'smtp.gmail.com', //SMTP Host
-        port: 465   , //SMTP Port
-        secure: true,
-        username: 'simpledeskbooking@gmail.com',
-        password: 'g8K<a^v<$4-;`nj"',
-        rejectUnauthorized: true,
-        requireTLS: true,
-        connectionTimeout: 1,
+        sendinblue_api_key: env('SIB_API_KEY', 'xkeysib-0987654321-abcdef'),
+        sendinblue_default_replyto: env('SIB_DEFAULT_REPLY_TO', 'contact@example.com'),
+        sendinblue_default_from: env('SIB_DEFAULT_FROM', 'no-reply@example.com'),
+        sendinblue_default_from_name: env('SIB_DEFAULT_FROM_NAME', 'Sender Name'),
       },
     },
-    settings: {
-      from: 'simpledeskbooking@gmail.com',
-      replyTo: 'simpledeskbooking@gmail.com',
-    },
-  },
+  }
 });
+
+

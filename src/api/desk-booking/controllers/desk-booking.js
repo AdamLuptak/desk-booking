@@ -6,6 +6,8 @@
 
 const { createCoreController } = require('@strapi/strapi').factories;
 const _ = require('lodash');
+const Mutex = require('async-mutex').Mutex;
+const mutex = new Mutex();
 
 module.exports = createCoreController('api::desk-booking.desk-booking', ({ strapi }) => ({
 
@@ -26,33 +28,34 @@ module.exports = createCoreController('api::desk-booking.desk-booking', ({ strap
   },
 
   async create(ctx) {
-    if (ctx.request.body.data.from > ctx.request.body.data.to) {
-      return ctx.badRequest('From can\'t be greater than to', {
-        from: ctx.request.body.data.from,
-        to: ctx.request.body.data.to
-      })
-    }
+    return await mutex.runExclusive(async () => {
+      if (ctx.request.body.data.from > ctx.request.body.data.to) {
+        return ctx.badRequest('From can\'t be greater than to', {
+          from: ctx.request.body.data.from,
+          to: ctx.request.body.data.to
+        })
+      }
 
-    const desk = await strapi.service('api::desk.desk').findOne(ctx.request.body.data.desk);
-    if (_.isEmpty(desk)) {
-      return ctx.badRequest('Desk doesn\'t exist', {
-        desk: ctx.request.body.data.desk
-      })
-    }
+      const desk = await strapi.service('api::desk.desk').findOne(ctx.request.body.data.desk);
+      if (_.isEmpty(desk)) {
+        return ctx.badRequest('Desk doesn\'t exist', {
+          desk: ctx.request.body.data.desk
+        })
+      }
 
-    const overlapBookings = await this.getOverlapBookings(ctx);
+      const overlapBookings = await this.getOverlapBookings(ctx);
 
-    if (!_.isEmpty(overlapBookings)) {
-      return ctx.badRequest('Booking exist', {
-        from: ctx.request.body.data.from,
-        to: ctx.request.body.data.to,
-        overlapBookings: overlapBookings
-      })
-    }
+      if (!_.isEmpty(overlapBookings)) {
+        return ctx.badRequest('Booking exist', {
+          from: ctx.request.body.data.from,
+          to: ctx.request.body.data.to,
+          overlapBookings: overlapBookings
+        })
+      }
 
-    ctx.request.body.data.owner = ctx.state.user.id
-
-    return super.create(ctx);
+      ctx.request.body.data.owner = ctx.state.user.id
+      return super.create(ctx);
+    });
   },
 
   async update(ctx) {
