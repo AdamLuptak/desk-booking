@@ -39,7 +39,10 @@ module.exports = createCoreController('api::desk.desk', ({ strapi }) => ({
           }
         ]
       },
-    })).map(it => it.id);
+      populate: {
+        desk: true,
+      },
+    })).map(it => it.desk.id);
 
     const rs = await strapi.service('api::desk.desk').find({
       filters: {
@@ -48,7 +51,7 @@ module.exports = createCoreController('api::desk.desk', ({ strapi }) => ({
         },
       },
       pagination: pagination
-    });
+    })
 
     const sanitizedResults = await this.sanitizeOutput(rs.results, ctx);
     return this.transformResponse(sanitizedResults, rs.pagination);
